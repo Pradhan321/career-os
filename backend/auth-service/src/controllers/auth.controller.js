@@ -28,8 +28,9 @@ export const register = async (req, res, next) => {
       token,
     });
   } catch (error) {
-    next(error);
-  }
+  console.log("next type:", typeof next);
+  next(error);
+}
 };
 
 export const login = async (req, res, next) => {
