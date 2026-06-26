@@ -28,7 +28,6 @@ export const register = async (req, res, next) => {
       token,
     });
   } catch (error) {
-  console.log("next type:", typeof next);
   next(error);
 }
 };
