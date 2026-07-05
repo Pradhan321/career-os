@@ -18,6 +18,15 @@ app.use(morgan("dev"));
 
 app.use("/api/v1/profiles", profileRoutes);
 
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    service: "user-service",
+    status: "UP",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 app.use(errorHandler);
 
 export default app;
