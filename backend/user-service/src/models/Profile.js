@@ -122,7 +122,14 @@ const profileSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+profileSchema.index({
+  "skills.name": 1,
+});
 
+profileSchema.index({
+  headline: "text",
+  bio: "text",
+});
 const Profile = mongoose.model("Profile", profileSchema);
 
 export default Profile;

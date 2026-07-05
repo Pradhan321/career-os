@@ -1,6 +1,7 @@
 // authController.js
 import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
+import { createUserProfile } from "../services/user.service.js";
 
 export const register = async (req, res, next) => {
   try {
@@ -22,14 +23,15 @@ export const register = async (req, res, next) => {
     });
 
     const token = generateToken(user._id);
+    await createUserProfile(token);
 
     res.status(201).json({
       success: true,
       token,
     });
   } catch (error) {
-  next(error);
-}
+    next(error);
+  }
 };
 
 export const login = async (req, res, next) => {
