@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-
+import { connectRabbitMQ } from "../../shared/messaging/rabbitmq.js";
 dotenv.config();
 
 import app from "./app.js";
@@ -10,10 +10,10 @@ const PORT = process.env.PORT || 5001;
 const startServer = async () => {
   try {
     await connectDB();
-
+    await connectRabbitMQ();
     app.listen(PORT, () => {
       console.log(
-        `Auth Service running on port ${PORT}`
+        `🚀 Auth Service running on port ${PORT}`
       );
     });
   } catch (error) {
