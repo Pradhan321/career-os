@@ -1,7 +1,9 @@
 // authController.js
+import { publishEvent } from "../../../shared/messaging/publisher.js";
+import { EXCHANGES, ROUTING_KEYS } from "../../../shared/messaging/constants.js";
 import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
-import { createUserProfile } from "../services/user.service.js";
+
 
 export const register = async (req, res, next) => {
   try {
@@ -21,9 +23,17 @@ export const register = async (req, res, next) => {
       email,
       password,
     });
-
+    await publishEvent({
+      exchange: EXCHANGES.USER,
+      routingKey: ROUTING_KEYS.USER_CREATED,
+      data: {
+        userId: user._id.toString(),
+        name: user.name,
+        email: user.email,
+      },
+    });
     const token = generateToken(user._id);
-    await createUserProfile(token);
+    
 
     res.status(201).json({
       success: true,
