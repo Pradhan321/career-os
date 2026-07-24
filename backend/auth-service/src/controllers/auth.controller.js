@@ -3,6 +3,7 @@ import { publishEvent } from "../../../shared/messaging/publisher.js";
 import { EXCHANGES, ROUTING_KEYS } from "../../../shared/messaging/constants.js";
 import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
+import { randomUUID } from "crypto";
 
 
 export const register = async (req, res, next) => {
@@ -23,22 +24,31 @@ export const register = async (req, res, next) => {
       email,
       password,
     });
+
+    const correlationId =
+      req.headers["x-correlation-id"] || randomUUID();
+
     await publishEvent({
       exchange: EXCHANGES.USER,
       routingKey: ROUTING_KEYS.USER_CREATED,
+
+      correlationId,
+
       data: {
         userId: user._id.toString(),
         name: user.name,
         email: user.email,
       },
     });
+
     const token = generateToken(user._id);
-    
 
     res.status(201).json({
       success: true,
       token,
+      correlationId,
     });
+
   } catch (error) {
     next(error);
   }
