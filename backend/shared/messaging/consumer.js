@@ -1,4 +1,5 @@
 import { getChannel } from "./rabbitmq.js";
+import { retryMessage } from "./retry.js";
 
 export const consumeEvent = async ({
   exchange,
@@ -8,47 +9,49 @@ export const consumeEvent = async ({
 }) => {
   const channel = getChannel();
 
-  // Create exchange if it doesn't exist
-  await channel.assertExchange(exchange, "direct", {
-    durable: true,
-  });
+  await channel.prefetch(1);
 
-  // Create queue if it doesn't exist
-  await channel.assertQueue(queue, {
-    durable: true,
-  });
-
-  // Bind queue to exchange
-  await channel.bindQueue(
-    queue,
-    exchange,
-    routingKey
+  console.log(
+    `📥 Listening on queue: ${queue}`
   );
-
-  console.log(`📥 Listening on queue: ${queue}`);
 
   channel.consume(
     queue,
     async (message) => {
       if (!message) return;
 
+      const correlationId =
+        message.properties.correlationId;
+
+      const messageId =
+        message.properties.messageId;
+
       try {
         const data = JSON.parse(
           message.content.toString()
         );
 
-        await handler(data);
+        await handler(data, {
+          messageId,
+          correlationId,
+        });
 
         channel.ack(message);
 
       } catch (error) {
-
         console.error(
-          "Consumer Error:",
-          error.message
+          `❌ Consumer Error`,
+          {
+            messageId,
+            correlationId,
+            error: error.message,
+          }
         );
 
-        channel.nack(message, false, false);
+        await retryMessage({
+          message,
+          routingKey,
+        });
       }
     },
     {
