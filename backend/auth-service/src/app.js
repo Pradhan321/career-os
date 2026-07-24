@@ -5,6 +5,7 @@ import morgan from "morgan";
 
 import authRoutes from "./routes/auth.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
+import { healthCheck } from "./controllers/health.controller.js";
 
 const app = express();
 
@@ -17,6 +18,8 @@ app.use(express.json());
 app.use(morgan("dev"));
 
 app.use("/api/v1/auth", authRoutes);
+
+app.get("/health", healthCheck);
 
 app.get("/health", (req, res) => {
   res.status(200).json({
