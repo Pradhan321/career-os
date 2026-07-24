@@ -1,15 +1,32 @@
 import Profile from "../models/Profile.js";
 
-export const handleUserCreated = async (data) => {
 
-  console.log("📩 Event Received:", data);
+export const handleUserCreated = async (
+  data,
+  metadata
+) => {
+  console.log(
+    "📩 Event Received:",
+    {
+      data,
+      messageId: metadata.messageId,
+      correlationId: metadata.correlationId,
+    }
+  );
 
   const exists = await Profile.findOne({
     userId: data.userId,
   });
 
   if (exists) {
-    console.log("Profile already exists");
+    console.log(
+      "Profile already exists",
+      {
+        correlationId:
+          metadata.correlationId,
+      }
+    );
+
     return;
   }
 
@@ -19,5 +36,11 @@ export const handleUserCreated = async (data) => {
     email: data.email,
   });
 
-  console.log("✅ Profile Created");
+  console.log(
+    "✅ Profile Created",
+    {
+      correlationId:
+        metadata.correlationId,
+    }
+  );
 };

@@ -1,3 +1,5 @@
+import { getChannel } from "../../../shared/messaging/rabbitmq.js";
+import { setupTopology } from "../../../shared/messaging/topology.js";
 import { consumeEvent } from "../../../shared/messaging/consumer.js";
 
 import {
@@ -12,6 +14,12 @@ import {
 
 export const startConsumers = async () => {
 
+  const channel = getChannel();
+
+  // Create exchanges, queues and bindings
+  await setupTopology(channel);
+
+  // Start listening
   await consumeEvent({
     exchange: EXCHANGES.USER,
     queue: QUEUES.USER_CREATED,
